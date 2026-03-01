@@ -934,36 +934,35 @@ async fn install_bun(app: &AppHandle) -> Result<(), String> {
         let zip_path = temp_dir.join("bun.zip");
 
         // Choose URL based on OS, architecture, and CPU features
-        let url = if cfg!(target_os = "macos") {
-            if cfg!(target_arch = "aarch64") {
-                // ARM Macs always use optimized build
-                emit_progress(app, "bun", 5, "Downloading Bun for Apple Silicon...", false);
-                BUN_MACOS_ARM_URL
-            } else {
-                // Intel Macs - check for AVX2
-                if cpu_supports_avx2() {
-                    emit_progress(app, "bun", 5, "Downloading optimized Bun for modern CPU...", false);
-                    BUN_MACOS_X64_URL
-                } else {
-                    emit_progress(app, "bun", 5, "Downloading baseline Bun for compatibility...", false);
-                    BUN_MACOS_X64_BASELINE_URL
-                }
-            }
+        #[cfg(target_os = "macos")]
+        let url = if cfg!(target_arch = "aarch64") {
+            // ARM Macs always use optimized build
+            emit_progress(app, "bun", 5, "Downloading Bun for Apple Silicon...", false);
+            BUN_MACOS_ARM_URL
         } else {
-            // Linux
-            if cfg!(target_arch = "aarch64") {
-                // ARM Linux always use optimized build
-                emit_progress(app, "bun", 5, "Downloading Bun for ARM64...", false);
-                BUN_LINUX_ARM_URL
+            // Intel Macs - check for AVX2
+            if cpu_supports_avx2() {
+                emit_progress(app, "bun", 5, "Downloading optimized Bun for modern CPU...", false);
+                BUN_MACOS_X64_URL
             } else {
-                // x64 Linux - check for AVX2
-                if cpu_supports_avx2() {
-                    emit_progress(app, "bun", 5, "Downloading optimized Bun for modern CPU...", false);
-                    BUN_LINUX_X64_URL
-                } else {
-                    emit_progress(app, "bun", 5, "Downloading baseline Bun for compatibility...", false);
-                    BUN_LINUX_X64_BASELINE_URL
-                }
+                emit_progress(app, "bun", 5, "Downloading baseline Bun for compatibility...", false);
+                BUN_MACOS_X64_BASELINE_URL
+            }
+        };
+
+        #[cfg(not(target_os = "macos"))]
+        let url = if cfg!(target_arch = "aarch64") {
+            // ARM Linux always use optimized build
+            emit_progress(app, "bun", 5, "Downloading Bun for ARM64...", false);
+            BUN_LINUX_ARM_URL
+        } else {
+            // x64 Linux - check for AVX2
+            if cpu_supports_avx2() {
+                emit_progress(app, "bun", 5, "Downloading optimized Bun for modern CPU...", false);
+                BUN_LINUX_X64_URL
+            } else {
+                emit_progress(app, "bun", 5, "Downloading baseline Bun for compatibility...", false);
+                BUN_LINUX_X64_BASELINE_URL
             }
         };
 

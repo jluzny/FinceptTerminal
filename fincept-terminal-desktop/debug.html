@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <div id="root">
+        <h1>Testing HTML Load</h1>
+        <p>If you see this, HTML loads fine</p>
+    </div>
+    <script>
+        console.log('Debug script loaded');
+        document.getElementById('root').innerHTML += '<p>JS executed successfully</p>';
+    </script>
+</body>
+</html>
